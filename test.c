@@ -49,6 +49,29 @@ void test_extract_assembler_comments(void) {
   }
 }
 
+void test_create_vm_instance(void) {
+  vm *instance = create_vm_instance();
+  TEST_CHECK(instance != NULL);
+  TEST_CHECK(instance->ip == 0);
+  TEST_CHECK(instance->ram != NULL);
+}
+
+void test_load_instructions(void) {
+  vm *instance = create_vm_instance();
+  instruction **instructions = assemble_source("noop");
+  load_instructions(instance, instructions);
+  TEST_CHECK(instance->ram[0] == 1);
+  TEST_CHECK(instance->ram[1] == 0);
+}
+
+void test_run_vm(void) {
+  vm *instance = create_vm_instance();
+  instruction **instructions = assemble_source("noop\nnoop");
+  load_instructions(instance, instructions);
+  run_vm_instance(instance);
+  TEST_CHECK(instance->ip == 2);
+}
+
 TEST_LIST = {
   { "assembling empty source", test_empty_assembler },
   { "assembling comments", test_assembler_comment },
@@ -56,5 +79,8 @@ TEST_LIST = {
   { "extracting a unary instruction", test_extract_unary_assembler },
   { "extracting a multiargument instruction", test_extract_assembler },
   { "extracting a multiargument instruction with comments afterwards", test_extract_assembler_comments },
+  { "creating a vm", test_create_vm_instance },
+  { "running a set of instructions", test_load_instructions },
+  { "running vm", test_run_vm },
   { 0 }
 };
