@@ -6,30 +6,43 @@
 
 typedef struct {
   const char* name;
-  void (*func)(void);
-}instruction_bytecode_handler;
+  void (*generate)(Vm *);
+  void (*interpret)(Vm *);
+}BytecodeHandler;
 
-void handle_noop(void) {
+void generate_noop(Vm *instance) {
+  instance->ram[instance->ip++] = 0x1;
+}
+
+void generate_stop(Vm *instance) {
+  instance->ram[instance->ip++] = 0x0;
+}
+
+void handle_noop(Vm *instance) {
   fprintf(stderr, "ok, noop then\n");
 }
 
-const instruction_bytecode_handler INSTRUCTION_BYTECODE_LIST[] = {
-  { "noop", handle_noop },
+void handle_stop(Vm *instance) {
+  fprintf(stderr, "stopping\n");
+}
+
+const BytecodeHandler INSTRUCTION_BYTECODE_LIST[] = {
+  { "stop", generate_stop, handle_stop },
+  { "noop", generate_noop, handle_noop },
   { 0 }
 };
 
-vm *create_vm_instance(void) {
-  vm *instance = NULL;
-  instance = (vm*)malloc(sizeof(instance));
+Vm *create_vm_instance(void) {
+  Vm *instance = NULL;
+  instance = (Vm *)malloc(sizeof(Vm));
   instance->ip = 0;
   instance->ram = (char*)malloc(sizeof(char) * 16 * 1024);
   bzero(instance->ram, 16 * 1024);
   return instance;
 }
 
-int instruction_bytecode_index(instruction *needle) {
+int instruction_bytecode_index(Instruction *needle) {
   long index;
-  instruction_bytecode_handler current;
 
   for (index = 0; INSTRUCTION_BYTECODE_LIST[index].name != 0; index++) {
     if(strcmp(INSTRUCTION_BYTECODE_LIST[index].name, needle->name) == 0) {
@@ -40,21 +53,28 @@ int instruction_bytecode_index(instruction *needle) {
   return -1;
 }
 
-void load_instructions(vm *instance, instruction **instructions) {
-  instruction *current;
-  long currentInstruction, bytecodeIndex, currentPosition = 0;
+void load_instruction_to_instance(Vm *instance, Instruction *instruction) {
+  BytecodeHandler handler;
+  long bytecodeIndex;
 
-  for (currentInstruction = 0; current = instructions[currentInstruction]; currentInstruction++) {
-    if ((bytecodeIndex = instruction_bytecode_index(current)) > -1) {
-      instance->ram[currentPosition++] = bytecodeIndex + 1;
-    }
+  if ((bytecodeIndex = instruction_bytecode_index(instruction)) > -1) {
+    INSTRUCTION_BYTECODE_LIST[bytecodeIndex].generate(instance);
   }
 }
 
-void run_vm_instance(vm *instance) {
+void load_instructions(Vm *instance, Instruction **instructions) {
+  Instruction *current;
+  long currentInstruction;
+
+  for (currentInstruction = 0; current = instructions[currentInstruction]; currentInstruction++) {
+    load_instruction_to_instance(instance, current);
+  }
+}
+
+void run_vm_instance(Vm *instance) {
   char instruction;
-  while ((instruction = instance->ram[instance->ip]) != 0) {
-    INSTRUCTION_BYTECODE_LIST[instruction - 1].func();
-    instance->ip++;
+  instance->ip = -1;
+  while ((instruction = instance->ram[++(instance->ip)]) != 0) {
+    INSTRUCTION_BYTECODE_LIST[instruction].interpret(instance);
   }
 }

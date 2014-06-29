@@ -21,14 +21,14 @@ int can_assemble(char *string) {
   return 0;
 }
 
-instruction *extract_instruction(char *line, long lineNumber) {
-  instruction *extracted = NULL;
+Instruction *extract_instruction(char *line, long lineNumber) {
+  Instruction *extracted = NULL;
   char *running = strdup(line);
   char *word = NULL;
   long argumentCount = 0;
   const char delimiters[] = " ,\t";
 
-  extracted = (instruction *)malloc(sizeof(instruction));
+  extracted = (Instruction *)malloc(sizeof(Instruction));
   extracted->line = lineNumber;
   extracted->arguments = malloc(sizeof(char*));
   extracted->arguments[0] = NULL;
@@ -48,21 +48,21 @@ instruction *extract_instruction(char *line, long lineNumber) {
   return extracted;
 }
 
-instruction **assemble_source(char *source) {
-  instruction **assembled = NULL;
-  instruction *extracted = NULL;
+Instruction **assemble_source(char *source) {
+  Instruction **assembled = NULL;
+  Instruction *extracted = NULL;
   char *line = NULL;
   long lineNumber = 0;
   long extractionCount = 0;
   char *sourceCopy = strdup(source);
 
-  assembled = malloc(sizeof(instruction *));
+  assembled = malloc(sizeof(Instruction *));
   assembled[0] = NULL;
 
   while (line = strsep(&sourceCopy, "\n")) {
     line = strsep(&line, ";");
     if (can_assemble(line)) {
-      assembled = realloc(assembled, (extractionCount + 2) * sizeof(instruction*));
+      assembled = realloc(assembled, (extractionCount + 2) * sizeof(Instruction*));
       assembled[extractionCount++] = extract_instruction(line, lineNumber++);
       assembled[extractionCount] = NULL;
     }

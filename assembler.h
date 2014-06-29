@@ -5,9 +5,9 @@ typedef struct{
   char *name;
   long line;
   char **arguments;
-}instruction;
+}Instruction;
 
-instruction **assemble_source(char *path);
-instruction *extract_instruction(char *line, long lineNumber);
+Instruction **assemble_source(char *path);
+Instruction *extract_instruction(char *line, long lineNumber);
 
 #endif

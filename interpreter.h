@@ -6,10 +6,10 @@
 typedef struct{
   long ip;
   char *ram;
-} vm;
+} Vm;
 
-vm *create_vm_instance(void);
-void load_instructions(vm *instance, instruction **instructions);
-void run_vm_instance(vm *instance);
+Vm *create_vm_instance(void);
+void load_instructions(Vm *instance, Instruction **instructions);
+void run_vm_instance(Vm *instance);
 
 #endif

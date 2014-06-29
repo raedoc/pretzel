@@ -5,22 +5,22 @@
 #define TEST_CHECK_STRING(s1, s2) do { TEST_CHECK(strcmp(s1, s2) == 0); } while(0)
 
 void test_empty_assembler(void) {
-  instruction **bytecode = assemble_source("");
+  Instruction **bytecode = assemble_source("");
   TEST_CHECK(bytecode[0] == NULL);
 }
 
 void test_valid_assembler(void) {
-  instruction **bytecode = assemble_source("mov croco, dingus");
+  Instruction **bytecode = assemble_source("mov croco, dingus");
   TEST_CHECK(bytecode[0] != NULL);
 }
 
 void test_assembler_comment(void) {
-  instruction **bytecode = assemble_source(";add ham, rye");
+  Instruction **bytecode = assemble_source(";add ham, rye");
   TEST_CHECK(bytecode[0] == NULL);
 }
 
 void test_extract_unary_assembler(void) {
-  instruction *extracted = extract_instruction("sigh", 777);
+  Instruction *extracted = extract_instruction("sigh", 777);
   if (TEST_CHECK(extracted != NULL)) {
     TEST_CHECK(extracted->line == 777);
     TEST_CHECK_STRING(extracted->name, "sigh");
@@ -29,7 +29,7 @@ void test_extract_unary_assembler(void) {
 }
 
 void test_extract_assembler(void) {
-  instruction *extracted = extract_instruction("wat taco, brah", 666);
+  Instruction *extracted = extract_instruction("wat taco, brah", 666);
   if (TEST_CHECK(extracted != NULL)) {
     TEST_CHECK(extracted->line == 666);
     TEST_CHECK_STRING(extracted->name, "wat");
@@ -40,7 +40,7 @@ void test_extract_assembler(void) {
 }
 
 void test_extract_assembler_comments(void) {
-  instruction *extracted = extract_instruction("oh no ;OMG", 666);
+  Instruction *extracted = extract_instruction("oh no ;OMG", 666);
   if (TEST_CHECK(extracted != NULL)) {
     TEST_CHECK(extracted->line == 666);
     TEST_CHECK_STRING(extracted->name, "oh");
@@ -50,23 +50,23 @@ void test_extract_assembler_comments(void) {
 }
 
 void test_create_vm_instance(void) {
-  vm *instance = create_vm_instance();
+  Vm *instance = create_vm_instance();
   TEST_CHECK(instance != NULL);
   TEST_CHECK(instance->ip == 0);
   TEST_CHECK(instance->ram != NULL);
 }
 
 void test_load_instructions(void) {
-  vm *instance = create_vm_instance();
-  instruction **instructions = assemble_source("noop");
+  Vm *instance = create_vm_instance();
+  Instruction **instructions = assemble_source("noop");
   load_instructions(instance, instructions);
   TEST_CHECK(instance->ram[0] == 1);
   TEST_CHECK(instance->ram[1] == 0);
 }
 
 void test_run_vm(void) {
-  vm *instance = create_vm_instance();
-  instruction **instructions = assemble_source("noop\nnoop");
+  Vm *instance = create_vm_instance();
+  Instruction **instructions = assemble_source("noop\nnoop");
   load_instructions(instance, instructions);
   run_vm_instance(instance);
   TEST_CHECK(instance->ip == 2);
