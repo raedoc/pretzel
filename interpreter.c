@@ -66,6 +66,7 @@ void load_instructions(Vm *instance, Instruction **instructions) {
   Instruction *current;
   long currentInstruction;
 
+  instance->ip = 0;
   for (currentInstruction = 0; current = instructions[currentInstruction]; currentInstruction++) {
     load_instruction_to_instance(instance, current);
   }
@@ -73,6 +74,7 @@ void load_instructions(Vm *instance, Instruction **instructions) {
 
 void run_vm_instance(Vm *instance) {
   char instruction;
+
   instance->ip = -1;
   while ((instruction = instance->ram[++(instance->ip)]) != 0) {
     INSTRUCTION_BYTECODE_LIST[instruction].interpret(instance);
